@@ -1611,6 +1611,26 @@ describe('any', () => {
 
             expect(() => Joi.any().example()).to.throw('Missing example');
         });
+
+        it('rebuilds object examples that contain a type property', () => {
+
+            const schema = Joi.object({
+                type: Joi.string()
+            }).example({
+                type: 'some-type'
+            });
+
+            Helper.equal(Joi.build(schema.describe()), schema);
+
+            const fromSpec = Joi.build({
+                type: 'object',
+                examples: [{ type: 'some-type' }],
+                keys: { type: { type: 'string' } }
+            });
+
+            Helper.equal(fromSpec, schema);
+            expect(fromSpec.describe().examples).to.equal([{ type: 'some-type' }]);
+        });
     });
 
     describe('exist()', () => {
