@@ -1631,6 +1631,24 @@ describe('any', () => {
             Helper.equal(fromSpec, schema);
             expect(fromSpec.describe().examples).to.equal([{ type: 'some-type' }]);
         });
+
+        it('rebuilds object examples with special descriptor keys', () => {
+
+            const examples = [
+                { value: 'some-value' },
+                { ref: 'some-ref' },
+                { regex: 'some-regex' },
+                { override: true },
+                { function: 'some-function' },
+                { buffer: 'some-buffer' }
+            ];
+
+            for (const example of examples) {
+                const schema = Joi.object().example(example);
+                Helper.equal(Joi.build(schema.describe()), schema);
+                expect(Joi.build(schema.describe()).describe().examples).to.equal([example]);
+            }
+        });
     });
 
     describe('exist()', () => {
