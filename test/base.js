@@ -1632,21 +1632,16 @@ describe('any', () => {
             expect(fromSpec.describe().examples).to.equal([{ type: 'some-type' }]);
         });
 
-        it('rebuilds object examples with special descriptor keys', () => {
+        it('rebuilds special example values', () => {
 
-            const examples = [
-                { value: 'some-value' },
-                { ref: 'some-ref' },
-                { regex: 'some-regex' },
-                { override: true },
-                { function: 'some-function' },
-                { buffer: 'some-buffer' }
-            ];
+            const values = [Buffer.from('abc'), /abc/i, Joi.ref('a')];
+            const checks = [Buffer.isBuffer, (value) => value instanceof RegExp, Joi.isRef];
 
-            for (const example of examples) {
-                const schema = Joi.object().example(example);
-                Helper.equal(Joi.build(schema.describe()), schema);
-                expect(Joi.build(schema.describe()).describe().examples).to.equal([example]);
+            for (let i = 0; i < values.length; ++i) {
+                const schema = Joi.any().example(values[i]);
+                const rebuilt = Joi.build(schema.describe());
+                expect(checks[i](rebuilt.$_terms.examples[0])).to.be.true();
+                Helper.equal(rebuilt, schema);
             }
         });
     });
